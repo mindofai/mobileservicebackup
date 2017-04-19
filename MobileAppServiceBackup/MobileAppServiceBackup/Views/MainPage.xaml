@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:prism="clr-namespace:Prism.Mvvm;assembly=Prism.Forms"
+             prism:ViewModelLocator.AutowireViewModel="True"
+             x:Class="MobileAppServiceBackup.Views.MainPage"
+             Title="MainPage" BackgroundColor="White">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0.1*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="0.1*"/>
+        </Grid.RowDefinitions>
+        <Grid BackgroundColor="Purple">
+            <Label Text="Pautang List" 
+                   HorizontalOptions="Center" 
+                   VerticalOptions="Center" 
+                   TextColor="White"
+                   FontSize="22"/>
+        </Grid>
+        <Grid Grid.Row="1">
+            <ListView x:Name="listView" SeparatorVisibility="Default" SeparatorColor="#4F4F4F" ItemsSource="{Binding Debts}" HasUnevenRows="True">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <Grid BackgroundColor="#DDDDDD" HeightRequest="50" Padding="30,0,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="0.3*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Text="{Binding Name}" 
+                                        HorizontalOptions="Start" 
+                                        VerticalOptions="Center"
+                                        TextColor="#0F0F0F"/>
+                                <Label Grid.Column="1" Text="{Binding Amount}" 
+                                       HorizontalOptions="Center" 
+                                       VerticalOptions="Center"
+                                       TextColor="#0F0F0F"/>
+                            </Grid>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+
+            </ListView>
+        </Grid>
+        <Grid Grid.Row="2">
+            <Button BackgroundColor="Purple" Text="Add Debt">
+
+            </Button>
+        </Grid>
+        <Grid>
+
+        </Grid>
+    </Grid>
+</ContentPage>
