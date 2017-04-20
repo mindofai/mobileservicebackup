@@ -38,7 +38,16 @@ namespace MobileAppServiceBackup.ViewModels
 
         public async void OnNavigatedTo(NavigationParameters parameters)
         {
+
             Debts = await _azureMobileService.GetAllDebts();
+            var debt = Debts[0];
+
+            debt.Amount = 200;
+
+            await _azureMobileService.UpdateDebt(debt);
+            Debts = await _azureMobileService.GetAllDebts();
+
+
         }
     }
 }

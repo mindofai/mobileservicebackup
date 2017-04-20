@@ -1,4 +1,6 @@
-﻿using MobileAppServiceBackup.Models;
+﻿using Microsoft.WindowsAzure.MobileServices;
+using Microsoft.WindowsAzure.MobileServices.Sync;
+using MobileAppServiceBackup.Models;
 using MobileAppServiceBackup.Services;
 using System;
 using System.Collections.Generic;
@@ -12,52 +14,26 @@ namespace MobileAppServiceBackup.Services
 {
     public class AzureMobileService
     {
-        private string appUrl = "";
-        List<Debt> _debts;
+        private string appUrl = "https://pautangmobileservice.azurewebsites.net/";
 
+        IMobileServiceTable<Debt> debts;
+
+        private MobileServiceClient Client;
         public AzureMobileService()
         {
         }
 
         private async Task Initialize()
         {
-            await Task.Delay(2000);
-            if (_debts == null)
-            {
-                _debts = new List<Debt>()
-                {
-                    new Debt()
-                    {
-                        Id = 1,
-                        Name = "Bryan Anthony",
-                        Amount = 3000
-                    },
-                    new Debt()
-                    {
-                        Id = 2,
-                        Name = "Jacky Alfred",
-                        Amount = 2000
-                    },
-                    new Debt()
-                    {
-                        Id = 1,
-                        Name = "Angelo",
-                        Amount = 1500
-                    },
-                    new Debt()
-                    {
-                        Id = 1,
-                        Name = "Philip",
-                        Amount = 1000
-                    },
-                };
-            }
+
+            Client = new MobileServiceClient(appUrl);
+            debts = Client.GetTable<Debt>();
         }
 
         public async Task<List<Debt>> GetAllDebts()
         {
             await Initialize();
-            return _debts.Where(d => d.Amount > 0).ToList();
+            return await debts.ToListAsync();
         }
 
         public async Task<bool> AddDebt(Debt debt)
@@ -65,7 +41,7 @@ namespace MobileAppServiceBackup.Services
             try
             {
                 await Initialize();
-                _debts.Add(debt);
+                await debts.InsertAsync(debt);
                 return true;
             }
             catch
@@ -79,7 +55,7 @@ namespace MobileAppServiceBackup.Services
             try
             {
                 await Initialize();
-                //_debts.Where(d => d.Id == debt.Id).FirstOrDefault();
+                await debts.UpdateAsync(debt);
                 return true;
             }
             catch
