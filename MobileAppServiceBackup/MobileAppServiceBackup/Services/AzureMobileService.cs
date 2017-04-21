@@ -16,32 +16,30 @@ namespace MobileAppServiceBackup.Services
     {
         private string appUrl = "https://pautangmobileservice.azurewebsites.net/";
 
-        IMobileServiceTable<Debt> debts;
-
+        IMobileServiceTable<Debt> debtTable;
         private MobileServiceClient Client;
-        public AzureMobileService()
-        {
-        }
 
-        private async Task Initialize()
+        private void Initialize()
         {
-
             Client = new MobileServiceClient(appUrl);
-            debts = Client.GetTable<Debt>();
+            debtTable = Client.GetTable<Debt>();
         }
 
         public async Task<List<Debt>> GetAllDebts()
         {
-            await Initialize();
-            return await debts.ToListAsync();
+            Initialize();
+
+            var debts = await debtTable.ToListAsync();
+            return debts.Where(d => d.IsPaid == false).ToList();
         }
 
         public async Task<bool> AddDebt(Debt debt)
         {
             try
             {
-                await Initialize();
-                await debts.InsertAsync(debt);
+                Initialize();
+
+                await debtTable.InsertAsync(debt);
                 return true;
             }
             catch
@@ -54,21 +52,9 @@ namespace MobileAppServiceBackup.Services
         {
             try
             {
-                await Initialize();
-                await debts.UpdateAsync(debt);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
+                Initialize();
 
-        public async Task<bool> SyncDebts()
-        {
-            try
-            {
-                await Initialize();
+                await debtTable.UpdateAsync(debt);
                 return true;
             }
             catch

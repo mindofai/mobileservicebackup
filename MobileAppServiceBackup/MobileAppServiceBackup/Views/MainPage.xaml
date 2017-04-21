@@ -6,52 +6,105 @@
              NavigationPage.HasNavigationBar="False"
              x:Class="MobileAppServiceBackup.Views.MainPage"
              Title="MainPage" BackgroundColor="White">
-
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="0.1*"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="0.1*"/>
-        </Grid.RowDefinitions>
-        <Grid BackgroundColor="Purple">
-            <Label Text="Pautang List" 
-                   HorizontalOptions="Center" 
-                   VerticalOptions="Center" 
-                   TextColor="White"
-                   FontSize="22"/>
-        </Grid>
-        <Grid Grid.Row="1">
-            <ListView x:Name="listView" SeparatorVisibility="Default" SeparatorColor="#4F4F4F" ItemsSource="{Binding Debts}" HasUnevenRows="True">
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <ViewCell>
-                            <Grid BackgroundColor="#DDDDDD" HeightRequest="50" Padding="30,0,0,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="0.3*"/>
-                                </Grid.ColumnDefinitions>
-                                <Label Text="{Binding Name}" 
-                                        HorizontalOptions="Start" 
-                                        VerticalOptions="Center"
-                                        TextColor="#0F0F0F"/>
-                                <Label Grid.Column="1" Text="{Binding Amount}" 
-                                       HorizontalOptions="Center" 
-                                       VerticalOptions="Center"
-                                       TextColor="#0F0F0F"/>
-                            </Grid>
-                        </ViewCell>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-
-            </ListView>
-        </Grid>
-        <Grid Grid.Row="2">
-            <Button BackgroundColor="Purple" Text="Add Debt">
-
-            </Button>
-        </Grid>
         <Grid>
-
+            <Grid.RowDefinitions>
+                <RowDefinition Height="0.2*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="0.15*"/>
+            </Grid.RowDefinitions>
+            <Grid BackgroundColor="Purple">
+                <Label Text="Pautang List" 
+                HorizontalOptions="Center" 
+                VerticalOptions="Center" 
+                TextColor="White"
+                FontSize="22"/>
+            </Grid>
+            <Grid Grid.Row="1">
+                <ListView x:Name="listView"
+                          SeparatorVisibility="Default"
+                          SeparatorColor="#CCCCCC" 
+                          ItemsSource="{Binding Debts}" 
+                          HasUnevenRows="True"
+                          ItemTapped="listView_ItemTapped">
+                    <ListView.ItemTemplate>
+                        <DataTemplate>
+                            <ViewCell>
+                                <Grid BackgroundColor="#EEEEEE" Padding="30,10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Label Text="{Binding Name}" 
+                                    FontSize="23"
+                                    HorizontalOptions="Start" 
+                                    VerticalOptions="Center"
+                                    TextColor="#0F0F0F"/>
+                                    <Label Grid.Column="1" Text="{Binding Amount}" 
+                                    FontSize="23"
+                                    HorizontalOptions="Center" 
+                                    VerticalOptions="Center"
+                                    TextColor="Purple"/>
+                                </Grid>
+                            </ViewCell>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </Grid>
+            <Grid Grid.Row="2">
+                <Button BackgroundColor="Purple" Text="Add Debt" TextColor="White" Command="{Binding OpenAddCommand}"/>
+            </Grid>
         </Grid>
+        <Grid BackgroundColor="#55000000" IsVisible="{Binding IsAddShow}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.2*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="0.2*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="0.5*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="0.5*"/>
+            </Grid.RowDefinitions>
+            <Grid BackgroundColor="White" Grid.Row="1" Grid.Column="1">
+                <StackLayout Margin="20,30,30,30">
+                    <Label Text="Name" TextColor="Black"/>
+                    <Entry Placeholder="Name" FontSize="15" Text="{Binding NameValue}" TextColor="Black" PlaceholderColor="Gray"/>
+                    <Label Text="Amount" TextColor="Black"/>
+                    <Entry Placeholder="Amount" FontSize="15" Text="{Binding AmountValue}" TextColor="Black" PlaceholderColor="Gray"/>
+                    <StackLayout Orientation="Horizontal">
+                        <Button Text="Add Debt" TextColor="White" BackgroundColor="Purple" Margin="10" Command="{Binding AddDebtCommand}"/>
+                        <Button Text="Cancel" TextColor="White" BackgroundColor="Purple" Margin="10" Command="{Binding CloseAddCommand}"/>
+                    </StackLayout>
+                </StackLayout>
+            </Grid>
+        </Grid>
+
+        <Grid BackgroundColor="#55000000" IsVisible="{Binding IsPaidShow}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="0.2*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="0.2*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="0.6*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="0.6*"/>
+            </Grid.RowDefinitions>
+            <Grid BackgroundColor="White" Grid.Row="1" Grid.Column="1">
+                <StackLayout Margin="20,30,30,30">
+                    <Label Text="Already Paid?" TextColor="Black"/>
+                    <StackLayout Orientation="Horizontal">
+                        <Button Text="Yes" TextColor="White" BackgroundColor="Purple" Margin="10" Command="{Binding UpdateDebtCommand}"/>
+                        <Button Text="Cancel" TextColor="White" BackgroundColor="Purple" Margin="10" Command="{Binding CloseAddCommand}"/>
+                    </StackLayout>
+                </StackLayout>
+            </Grid>
+        </Grid>
+
+        <Grid BackgroundColor="#55000000" IsVisible="{Binding IsBusy}">
+            <ActivityIndicator IsRunning="True" Color="Purple" VerticalOptions="Center" HorizontalOptions="Center"/>
+        </Grid>
+
     </Grid>
 </ContentPage>
