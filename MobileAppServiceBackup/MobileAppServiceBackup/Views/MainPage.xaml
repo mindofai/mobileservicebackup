@@ -26,7 +26,10 @@
                           SeparatorColor="#CCCCCC" 
                           ItemsSource="{Binding Debts}" 
                           HasUnevenRows="True"
-                          ItemTapped="listView_ItemTapped">
+                          ItemTapped="listView_ItemTapped"
+                          IsPullToRefreshEnabled="True"
+                          IsRefreshing="{Binding IsRefreshBusy}"
+                          RefreshCommand="{Binding RefreshDebtsCommand}">
                     <ListView.ItemTemplate>
                         <DataTemplate>
                             <ViewCell>

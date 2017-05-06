@@ -6,22 +6,20 @@ using Prism.Navigation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Xamarin.Forms;
 
 namespace MobileAppServiceBackup.ViewModels
 {
     public class MainPageViewModel : BindableBase, INavigationAware
     {
-        private AzureMobileService _azureMobileService;
-
+        #region Properties
         private List<Debt> _debts;
         public List<Debt> Debts
         {
             get { return _debts; }
             set { SetProperty(ref _debts, value); }
         }
-
-
 
         private string _nameValue;
 
@@ -56,6 +54,14 @@ namespace MobileAppServiceBackup.ViewModels
             set { SetProperty(ref _isBusy, value); }
         }
 
+        private bool _isRefreshBusy;
+
+        public bool IsRefreshBusy
+        {
+            get { return _isRefreshBusy; }
+            set { SetProperty(ref _isRefreshBusy, value); }
+        }
+
 
         private bool _isPaidShow;
 
@@ -83,33 +89,71 @@ namespace MobileAppServiceBackup.ViewModels
 
         private DelegateCommand _addDebtCommand;
         public DelegateCommand AddDebtCommand =>
-            _addDebtCommand ?? (_addDebtCommand = new DelegateCommand(AddDebt));
+            _addDebtCommand ?? (_addDebtCommand = new DelegateCommand(async () => await AddDebt()));
 
         private DelegateCommand _updateDebtCommand;
         public DelegateCommand UpdateDebtCommand =>
-            _updateDebtCommand ?? (_updateDebtCommand = new DelegateCommand(UpdateDebt));
+            _updateDebtCommand ?? (_updateDebtCommand = new DelegateCommand(async () => await UpdateDebt()));
 
+        private DelegateCommand _refreshDebtsCommand;
 
+        public DelegateCommand RefreshDebtsCommand =>
+            _refreshDebtsCommand ?? (_refreshDebtsCommand = new DelegateCommand(async () => await RefreshDebts()));
 
+        private AzureMobileService _azureMobileService;
+
+        #endregion
+
+        #region Constructor
         public MainPageViewModel()
         {
+
+            _azureMobileService = DependencyService.Get<AzureMobileService>();
+
+            Debts = new List<Debt>();
+            SelectedDebt = new Debt();
             NameValue = string.Empty;
             AmountValue = string.Empty;
 
             IsBusy = false;
             IsAddShow = false;
+        }
+        #endregion
 
-            SelectedDebt = new Debt();
+        #region Methods
+        private async Task RefreshDebts()
+        {
+            IsRefreshBusy = true;
+            var debts = await _azureMobileService.GetAllDebts();
+            Debts = debts.Where(d => d.IsPaid == false).ToList();
+            IsRefreshBusy = false;
         }
 
-        public void UpdateDebt()
+        public async Task UpdateDebt()
         {
             IsBusy = true;
+
+            await _azureMobileService.UpdateDebt(SelectedDebt);
+            await RefreshDebts();
+
+            IsBusy = false;
+            IsPaidShow = false;
         }
 
-        public void AddDebt()
+        public async Task AddDebt()
         {
             IsBusy = true;
+            var debt = new Debt()
+            {
+                Name = NameValue,
+                Amount = Convert.ToDouble(AmountValue),
+                IsPaid = false
+            };
+            await _azureMobileService.AddDebt(debt);
+
+            await RefreshDebts();
+            IsBusy = false;
+            IsAddShow = false;
         }
 
 
@@ -132,10 +176,12 @@ namespace MobileAppServiceBackup.ViewModels
             IsPaidShow = false;
         }
 
-        public void OnNavigatedTo(NavigationParameters parameters)
+        public async void OnNavigatedTo(NavigationParameters parameters)
         {
+            await RefreshDebts();
 
         }
+        #endregion
 
         #region NavigationHelpers
         public void OnNavigatedFrom(NavigationParameters parameters)

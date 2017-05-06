@@ -1,9 +1,12 @@
 ﻿using Microsoft.WindowsAzure.MobileServices;
+using Microsoft.WindowsAzure.MobileServices.SQLiteStore;
 using Microsoft.WindowsAzure.MobileServices.Sync;
 using MobileAppServiceBackup.Models;
 using MobileAppServiceBackup.Services;
+using Plugin.Connectivity;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,35 +17,46 @@ namespace MobileAppServiceBackup.Services
 {
     public class AzureMobileService
     {
-        private string appUrl = "https://pautangmobileservice.azurewebsites.net/";
+        public MobileServiceClient Client { get; private set; }
+        private IMobileServiceSyncTable<Debt> debtTable;
 
-        IMobileServiceTable<Debt> debtTable;
-        private MobileServiceClient Client;
-
-        private void Initialize()
+        private async Task Initialize()
         {
-            Client = new MobileServiceClient(appUrl);
-            debtTable = Client.GetTable<Debt>();
+            Client = new MobileServiceClient("put your base url here");
+
+            var path = Path.Combine(MobileServiceClient.DefaultDatabasePath, "debtsync.db");
+
+            var store = new MobileServiceSQLiteStore(path);
+
+            store.DefineTable<Debt>();
+
+            await Client.SyncContext.InitializeAsync(store);
+
+            debtTable = Client.GetSyncTable<Debt>();
+        }
+
+        private async Task SyncDebt()
+        {
+            await debtTable.PullAsync("allDebt", debtTable.CreateQuery());
+            await Client.SyncContext.PushAsync();
         }
 
         public async Task<List<Debt>> GetAllDebts()
         {
-            Initialize();
-
-            var debts = await debtTable.ToListAsync();
-            return debts.Where(d => d.IsPaid == false).ToList();
+            await Initialize();
+            await SyncDebt();
+            return await debtTable.ToListAsync();
         }
 
         public async Task<bool> AddDebt(Debt debt)
         {
             try
             {
-                Initialize();
-
                 await debtTable.InsertAsync(debt);
+                await SyncDebt();
                 return true;
             }
-            catch
+            catch(Exception ex)
             {
                 return false;
             }
@@ -52,9 +66,9 @@ namespace MobileAppServiceBackup.Services
         {
             try
             {
-                Initialize();
-
+                debt.IsPaid = true;
                 await debtTable.UpdateAsync(debt);
+                await SyncDebt();
                 return true;
             }
             catch
