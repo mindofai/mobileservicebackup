@@ -22,13 +22,13 @@ namespace MobileAppServiceBackup.Services
 
         private async Task Initialize()
         {
-            Client = new MobileServiceClient("put your base url here");
+            Client = new MobileServiceClient("mobile app base url here");
 
-            var path = Path.Combine(MobileServiceClient.DefaultDatabasePath, "debtsync.db");
+            var path = Path.Combine(MobileServiceClient.DefaultDatabasePath, "nameoflocaldb.db");
 
             var store = new MobileServiceSQLiteStore(path);
 
-            store.DefineTable<Debt>();
+            store.DefineTable<Debt>();  
 
             await Client.SyncContext.InitializeAsync(store);
 
@@ -37,7 +37,7 @@ namespace MobileAppServiceBackup.Services
 
         private async Task SyncDebt()
         {
-            await debtTable.PullAsync("allDebt", debtTable.CreateQuery());
+            await debtTable.PullAsync("queryName", debtTable.CreateQuery());
             await Client.SyncContext.PushAsync();
         }
 
@@ -56,7 +56,7 @@ namespace MobileAppServiceBackup.Services
                 await SyncDebt();
                 return true;
             }
-            catch(Exception ex)
+            catch
             {
                 return false;
             }

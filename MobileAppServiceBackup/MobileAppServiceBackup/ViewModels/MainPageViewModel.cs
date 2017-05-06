@@ -133,7 +133,9 @@ namespace MobileAppServiceBackup.ViewModels
         {
             IsBusy = true;
 
-            await _azureMobileService.UpdateDebt(SelectedDebt);
+            if (!await _azureMobileService.UpdateDebt(SelectedDebt))
+                return;
+
             await RefreshDebts();
 
             IsBusy = false;
@@ -149,7 +151,9 @@ namespace MobileAppServiceBackup.ViewModels
                 Amount = Convert.ToDouble(AmountValue),
                 IsPaid = false
             };
-            await _azureMobileService.AddDebt(debt);
+           
+            if (!await _azureMobileService.AddDebt(debt))
+                return;
 
             await RefreshDebts();
             IsBusy = false;
